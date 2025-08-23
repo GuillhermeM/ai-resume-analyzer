@@ -20,6 +20,14 @@ export default function Home() {
         <h1 className="text-center">Track Your Applications & Resume Rating</h1>
         <h2 className="text-center">Review your submissions and check AI-powered feedback</h2>
       </section>
+
+
+      {[]}
+
+
+
+
+
     </main>
   );
 }
