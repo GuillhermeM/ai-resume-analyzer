@@ -21,16 +21,16 @@ export default function Home() {
         <div className="page-heading" />
         <h1 className="text-center">Track Your Applications & Resume Rating</h1>
         <h2 className="text-center">Review your submissions and check AI-powered feedback</h2>
-      </section>
+      
 
       {resumes?.length > 0 && (
-  <div className="resumes-section">
+  <div className="resumes-section justify-center">
     {resumes.map((resume) => (
       <ResumeCard key={resume.id} resume={resume} />
     ))}
   </div>
 )}
-
+</section>
 
     </main>
   );
