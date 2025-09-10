@@ -32,16 +32,39 @@ const Upload = () => {
     setIsProcessing(true);
 
     setStatusText("Uploading the file...");
-    const uploadedFile = await fs.upload([file]);
+    let uploadedFile;
+    try {
+      uploadedFile = await fs.upload([file]);
+      console.log("uploadedFile:", uploadedFile);
+    } catch (err) {
+      console.error("Error uploading file:", err);
+      return setStatusText("Error: Failed to upload file");
+    }
     if (!uploadedFile) return setStatusText("Error: Failed to upload file");
 
     setStatusText("Converting to image...");
-    const imageFile = await convertPdfToImage(file);
-    if (!imageFile.file)
+    let imageFile;
+    try {
+      imageFile = await convertPdfToImage(file);
+      console.log("imageFile:", imageFile);
+    } catch (err) {
+      console.error("Error converting PDF to image:", err);
       return setStatusText("Error: Failed to convert PDF to image");
+    }
+    if (!imageFile.file) {
+      console.error("Failed to create image from PDF:", imageFile.error);
+      return setStatusText("Error: Failed to convert PDF to image");
+    }
 
     setStatusText("Uploading the image...");
-    const uploadedImage = await fs.upload([imageFile.file]);
+    let uploadedImage;
+    try {
+      uploadedImage = await fs.upload([imageFile.file]);
+      console.log("uploadedImage:", uploadedImage);
+    } catch (err) {
+      console.error("Error uploading image:", err);
+      return setStatusText("Error: Failed to upload image");
+    }
     if (!uploadedImage) return setStatusText("Error: Failed to upload image");
 
     setStatusText("Preparing data...");
@@ -59,10 +82,17 @@ const Upload = () => {
 
     setStatusText("Analyzing...");
 
-    const feedback = await ai.feedback(
-      uploadedFile.path,
-      prepareInstructions({ jobTitle, jobDescription })
-    );
+    let feedback;
+    try {
+      feedback = await ai.feedback(
+        uploadedFile.path,
+        prepareInstructions({ jobTitle, jobDescription })
+      );
+      console.log("feedback:", feedback);
+    } catch (err) {
+      console.error("Error analyzing resume:", err);
+      return setStatusText("Error: Failed to analyze resume");
+    }
     if (!feedback) return setStatusText("Error: Failed to analyze resume");
 
     const feedbackText =
@@ -70,10 +100,15 @@ const Upload = () => {
         ? feedback.message.content
         : feedback.message.content[0].text;
 
-    data.feedback = JSON.parse(feedbackText);
+    try {
+      data.feedback = JSON.parse(feedbackText);
+    } catch (err) {
+      console.error("Error parsing feedback:", err, feedbackText);
+      return setStatusText("Error: Failed to parse feedback");
+    }
     await kv.set(`resume:${uuid}`, JSON.stringify(data));
     setStatusText("Analysis complete, redirecting...");
-    console.log(data);
+    console.log("data final:", data);
     navigate(`/resume/${uuid}`);
   };
 
